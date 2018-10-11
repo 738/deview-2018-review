@@ -26,176 +26,163 @@ React Component -> React Native -> Bridge -> Android, iOS
 
 #### Bridge 특징
 
-##### 1. Asynchronous
-Native 비동기 호출: 완료 시점까지 Javascript 처리 진행
+_1. Asynchronous_
 
-##### 2. Serializable
+**AS-IS** Native 동기화 호출: 완료 시점까지 Javascript 처리 대기
+
+**TO-BE** Native 비동기 호출: 완료 시점까지 Javascript 처리 진행
+
+_2. Serializable_
+
+**AS-IS** 독립적으로 운영되는 두 영역 간의 데이터 공유: 많은 관리 이슈 발생
+
+**TO-BE** 직렬화 된 메시지 교환: 간결해진 구조 대신 성능 저하 발생
+
+_3. Batched_
+
+**AS-IS** Native 호출마다 직렬화와 역직렬화의 과정에서 부하 발생
+
+**TO-BE** 큐에 넣어 5ms 단위로 일괄 처리하는 방식으로 성능 개선
 
 
-3: Batched
-Native 호출마다 직렬화와 역직렬화의 과정에서 부하 발생
-큐에 넣어 5ms
-MessageQueue 모니터링 방법 spy
+#### Bridge 모니터링
 
-Native -> Bridge -> javascript
+* MessageQueue 모니터링 방법
 
-UIManager, Networking
-네이티브의 네트워크 요청 처리시 메시지큐 로그
-브릿지와의 통신 최소화해야함
+```javascript
+import MessageQueue from 'react-native/Libraries/BatchedBridge/MessageQueue';
 
-발전방향
+MessageQueue.spy(true);
+MessageQueue.spy((info) => console.log("I'm spying!", info));
+```
+
+#### react-native의 발전방향
+
+Facebook의 개선 방향
+
 1. New Threading model
 2. New async rendering capabilities
 3. Faster and more lightweight bridge
 
-노하우 팁
-프로덕션 레벨 프로젝트라며 ㅇ엑스포는 사용하지마세요
-시작만 쉽고 모든게 어려워짐
-기본으로 제공하는 기능이 많지만 앱이 너무커짐
-추가적인 네이티브 모듈을 설치할 수 없다
 
-속편하게 처음부터 빌드방식으로 시작하세요
+## Cake 프로젝트에 얻은 노하우 & 탑
 
-효율적인 작업 순서
+### EXPO(CRNA) 사용 자제
 
-기본적인 작업 (레이아웃 , 데이터 연동) -> 복잡한 애니메이션 & 인터랙션 확인 -> ios에 특화된 ux 작업
+1. 시작만 쉽고 모든 게 어려워짐
+2. 기본으로 제공하는 기능은 많지만 앱이 너무 커짐 (기본 25~30MB)
+3. 추가적인 Native 모듈을 설치할 수 없음 (제일 큰 이유!)
 
-* bable-plugin-root-important 적용
-* import someexample from ‘~/some/examp.e/'
+**속 편하게 처음부터 빌드 방식(`react-native-cli`)으로 시작해라**
 
+### 효율적인 작업 순서
 
-Optional Chaining (0.56 가능)
-옵셔널 체이닝 오퍼레이터 널세이프티 코딩가능
+기본적인 작업 (레이아웃, 데이터 연동) -> 복잡한 애니메이션 & 인터랙션 확인 -> iOS에 특화된 UX 작업
 
-lock dependencies 버전고정
+중간에 안드로이드에서 확인하지 않으면 나중에 놀랄 수 있음!
 
-npm install —save —save-exact react-native0sdk
+### Import 경로 지옥 탈출
 
+상대경로 말고 절대경로를 사용하고 싶다면 `babel-plugin-root-import`를 적용
 
-Flow는 처음부터 꼭 사용하세요! 
-(타입스크립트 안사용하는 이유?)
+### Optional Chaining
 
-flow적용시 발생하는 문제해결
+```javascript
+// AS-IS
+if(data && data.items && data.items.length > 2) {
+    drawList(data);
+}
 
-컴파일된 번들 파일 확인
+// TO-BE
+if(data?.items?.length > 2) {
+    drawList(data);
+}
+```
 
-npm -g install js-beatify
-내가 짠 코드가 babel로 어떻게 변환되는지 확인해보는것도의미있다
+Optional chaining operator 사용으로 쉽게 Null Safety 코딩! (0.56 버전부터 가능)
 
-# 성능을 고려한 정적 이미지 사용
+### Lock dependencies
 
-javascript 패키져가 동작하는 방식 ->번들파일 생성 ->모듈id로 치환
+잘못된 라이브러리 업데이트는 고통을 불러옴
 
-<Image source ={{uri: ‘my_icon’}} style={{}}}
+#### 버전 고정하는 방법
 
- 기존 네이티브 개발방식으로 추가
-사이즈 반드시 입력
+1. 설치마다 고정 버전으로 설치하기
+```bash
+$ npm install --save --save-exact react-native-fbsdk
+$ yarn add --exact react-native-fbsdk
+```
 
+2. 전역 기본 옵션으로 설정하기
+```bash
+$ npm config set save-exact=true
+```
 
-성능을 고려한 리모트 이미지 사용
+### Flow는 처음부터 꼭 사용해라
 
-SDWebImage Glide 라이브러리 사용으로 문제점 개선
+Flow를 적용해서 타입을 정의하면 파라미터 타입 오류의 사전 감지가 가능
+1. 코드 진단
+2. 자동 완성
+3. 타입 힌트
+4. 빠른 함수 이동
 
-react-native-image
-
-내장 이미지컴포너ㅌ읨 누제
-
-플리커링
-
-캐시미시스
-로우 펄포먼스
-
-
-
-자바스크립트 코어의 동작 오류
-
-리모트 디버그 모드는 크롬의 브이팔 엔진 사용
-자바스크립트코어엔진은 데이터 처리에 문제가 많음 (moment.js 라이브러리 사용)
-
-안드로이드느느 자바스크립트코어 오래된 버전 사용중
-플랫폼 간에도 다르게 동작할 수 있어요.
-
-플랫폼 별 컴포넌트 스타일링
-재정의 방식으로 스타일 정의
-atom-react-native-style 
-
-안드로이드텍스트 위 아래 패딩 제거
-includeFontPadding 스타일 속성 끄기
-ios와 동일하게
-
-공용 Text 컴포넌트 사용하기
-
-터치영역확장하기
-힙슬롭으로 최소한 44dp의 터치영역으로 보장해주세요
-hitslop={{}}
-
-놓치기 쉬운 최초화ㅏ면 렌더링
-render() 함수가 최초에 한번실행된다는걸 잊기쉽자
-출력여부 상태값으로 불필요한 초기렌더링제거! (로딩뷰)
-
-화면에 보이지않지만 동작하는코드
-
-타이머/이벤트 리스너 사용 시 꼭 제거해주세요.
-끄지않으면 백그라운드에서 계속발생함
-
-개발자도구
-perf monitor  프로세스 메모리 jsc views ui js 개발자도구
-
-xcode: view hierarchy debugger 
-android: studio: profiler
-
-60fps 보장하기
-자연스러운 애니메이션
-requestAnimationFrame 함수 실행
--> 값계산후 view.setnativeprops 함수 실행
--> bridge로 전달
--> ui 업데이트
-useNativeDriver: true로 ㅅ속성 주면
-
-메인쓰레드에서 프레임마다 실행
--> 계산된값으로 직접 View 업데이트 호출
--> UI 업데이트
+요즘은 타입스크립트도 지원이 많이 되어서 괜찮음
 
 
-무거운 코드의 올바른 실행 시점
-애니메이션과 인터랙션이 끄난 후로 실행 지연
-반복되는 애니메이션이 있다면 등록한 코드가 실행되지 않거나 실행시점문제발생
+### 컴파일된 번들 파일 확인
 
-다음프레임으로 실행지연
-현재 프레임의 다른 실행을 보장해서 앱반응성 개선
+자신이 짠 코드를 babel로 어떻게 변환되는지 확인해보는 것도 의미 있음
 
-faltlist 성능개선
-getitemLayout  속성사용
-높이가 고정된 구성이라면 레이아웃의 크기를 매번계산하지않아서 성능개선
+```bash
+$ npm -g install js-beautify
+```
 
-효율적인 레퍼런스 사용
-1. string refs
-2. callback refs
-3. React.createRef() (tofhtodrla)
+```bash
+$ react-native bundle --platform android --dev false --entry-file index.js --bundle-output index.android.bundle
+$ js-beautify index.android.bundle > index.android.bundle.js
+```
 
-구글플레ㅣㅇ 타겟 api 26 정책 대응
+### 성능을 고려한 정적 이미지 사용
 
-안드로이드 apk  chlwjrghk
-1. split apk
-2. 
-def enableSeparateBuidl =true
-2. 프로가드 적용
-쉬링크 리소스 옵션 사용금지
+### 성능을 고려한 리모트 이미지 사용
 
-babel-pligin tranform remove console
+### JavaScriptCode의 동작 오류
 
+### 플랫폼별 컴포넌트 스타일링
 
-불필요한 localized reosoucr 제거
+### 편리한 Style 자동완성
 
-앱크기에대한 걱정은 노
+### 안드로이드 Text 위 아래 패딩 제거
 
-네비게이션 모듈 선택
-react-navigation
-react-native-navigation (네이티브 구현체 버전2개발중)
+### 공용 Text 컴포넌트 사용하기
 
-복잡한 애니메이션은 Lottie
-디자이너한테 복잡한 애니메이션도 다 된다고 자신있게 말하세요
+### 터치 영역 확장하기
 
+### 놓치기 쉬운 최초 화면 렌더링
+
+### 화면에 보이지 않지만 동작하는 코드
+
+### 개발자 도구
+
+### 60 FPS 보장하기
+
+### 효율적인 애니메이션 사용
+
+### 무거운 코드의 올바른 실행 시점
+
+### FlatList 성능 개선
+
+### 효율적인 레퍼런스 사용
+
+### Google Play API Level 26 정책 대응
+
+### 안드로이드 APK 최적화
+
+### 앱 크기에 대한 걱정은 오해
+
+### 네비게이션 모듈 선택
+
+### 복잡한 애니메이션은 Lottie
 
 #### 출처
 * 발표자료: [링크](https://www.slideshare.net/deview/121react-native)
