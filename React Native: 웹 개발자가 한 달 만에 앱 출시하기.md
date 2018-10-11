@@ -1,25 +1,37 @@
 # react-native: 웹 개발자가 한달만에 앱 출시하기
-# 사례
+
+## 사례
 * 페이스북
 * 인스타그램
 * 디스코드
 * 케이크
-앱개발자 1명
-안드로이드 & iOS 개발기간 1달
-매달 정기 업데이트
+  * 앱개발자 1명
+  * 안드로이드 & iOS 개발기간 1달
+  * 매달 정기 업데이트
+  * 기존 앱 개발 방식이었다면 가능했을까?
 
-선택의결과
-1. 투입한 개발 리소스 down = 최종 결과물의 퀄리티 up
-2. 플랫폼간 공유 코드
+## 선택의결과
+* 투입한 개발 리소스 ↓ = 최종 결과물의 퀄리티 ↑
+* 플랫폼간 공유 코드 ↑ = QA & 유지 보수 비용 ↓
 
-# react-native 완벽한 이해 
+빠른 개발 -> 코드 공유 -> 쉬운 개선
+
+> React Native는 단 기간에 프로덕션 레벨의 크로스 플랫폼 앱을 만들어야 할 때 고려할 수 있는 여러 선택지 중 가장 가성비가 좋은 프레임워크다.
+
+## react-native 완벽한 이해
+
 React Component -> React Native -> Bridge -> Android, iOS
 
-# Threading Structure
-Bridge 특징 (1) : Asynchronous
-Native 비동기 호출: 완료 시점ㄲ자ㅣ 자바스크립트 처리 진행
-2: Serializable
-직렬화된 메시지 교환: 간결해진 구조 대신 성능 저하 발생
+### Threading Structure
+
+#### Bridge 특징
+
+##### 1. Asynchronous
+Native 비동기 호출: 완료 시점까지 Javascript 처리 진행
+
+##### 2. Serializable
+
+
 3: Batched
 Native 호출마다 직렬화와 역직렬화의 과정에서 부하 발생
 큐에 넣어 5ms
@@ -185,54 +197,6 @@ react-native-navigation (네이티브 구현체 버전2개발중)
 디자이너한테 복잡한 애니메이션도 다 된다고 자신있게 말하세요
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#### 출처
+* 발표자료: [링크](https://www.slideshare.net/deview/121react-native)
+* 발표자: 스노우 이성민 개발자님
