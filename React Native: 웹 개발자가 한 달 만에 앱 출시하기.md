@@ -144,25 +144,112 @@ $ js-beautify index.android.bundle > index.android.bundle.js
 
 ### 성능을 고려한 정적 이미지 사용
 
+**AS-IS** Javascript packager가 동작하는 방식: Bundle 파일 생성 -> 모듈 ID로 치환
+
+**TO-BE** App Resources 사용하기
+
+1. 기존 Native 개발 방식(Xcode asset catalogs / Android drawable folder)으로 추가
+2. 크기 속성을 꼭 정의
+
 ### 성능을 고려한 리모트 이미지 사용
+
+**내장 Image 컴포넌트의 문제**
+
+1. Flickering
+2. Cache misses
+3. Low performances
+
+```bash
+// SDWebImage (iOS) / Glide (Android) 라이브러리 사용으로 문제점 개선
+$ npm install react-native-fast-image
+```
 
 ### JavaScriptCode의 동작 오류
 
+* Remote Debug 모드는 크롬의 V8 엔진 사용 (JavaScriptCore 엔진은 Date 처리에 문제가 많으므로 moment.js 라이브러리 사용)
+
+* 플랫폼 간에도 다르게 동작할 수 있음 (안드로이드는 오래된 버전의 JavaScriptCore 엔진 사용중임)
+
 ### 플랫폼별 컴포넌트 스타일링
+
+* 재정의 방식으로 스타일 정의하기
+```javascript
+import StyleSheet from './PlatformStyleSheet';
+const styles = StyleSheet.create({
+    title: {
+        fontSize: 16,
+        ios: { fontSize: 18 },
+        android: { fontSize: 17, color: 'red' }
+    }
+});
+```
+
+```javascript
+import { Platform, StyleSheet } from 'react-native';
+const PlatformStyleSheet = {
+    create(styles) {
+        const platformStyles = {};
+        for (const key in styles) {
+            const { ios, android, ...style } = styles[key];
+            (ios || android) && Object.assign(style, Platform.select({ios, android}));
+            platformStyles[key] = style;
+        }
+        return StyleSheet.create(platformStyles);
+    },
+}
+
+export default PlatformStyleSheet;
+```
 
 ### 편리한 Style 자동완성
 
+* atom-react-native-style 패키지 설치
+
 ### 안드로이드 Text 위 아래 패딩 제거
+
+* includeFontPadding 스타일 속성 끄기 (iOS와 동일하게 TextView의 ascent, descent 기준으로 출력)
 
 ### 공용 Text 컴포넌트 사용하기
 
+```javascript
+Class Text extends PureComponent {
+    static defaultStyle = Platform.select({
+        ios: { fontFmaily: 'AppleSDGothicNeo-Regular' },
+        android: {
+            fontFamily: 'sans-serif',
+            includeFontPadding: false
+        }
+    });
+
+    render() {
+        const { children, style, ...props } = this.props;
+        return <Text {...props}
+                     allowFontScaling={false} style={[Text.defaultStyle, style]}>
+                     {children}
+                </Text>;
+    }
+}
+```
+
 ### 터치 영역 확장하기
+
+* hitSlop으로 최소한 44dp의 터치 영역을 보장해주세요.
 
 ### 놓치기 쉬운 최초 화면 렌더링
 
+* render() 함수가 최초에 한 번 실행된다는 걸 잊기 쉬움
+* render() -> componentDidMount() -> render()
+* 출력 여부 상태 값으로 불필요한 초기 렌더링 제거
+
 ### 화면에 보이지 않지만 동작하는 코드
 
+* 타이머/이벤트 리스너 사용 시 꼭 제거
+
 ### 개발자 도구
+
+* react-native: Perf Monitor(iOS)
+* Xocde: View Hierarchy Debugger
+* Android Studio: Profiler
 
 ### 60 FPS 보장하기
 
