@@ -255,6 +255,22 @@ Class Text extends PureComponent {
 
 ### 효율적인 애니메이션 사용
 
+* Javascript Driver 동작 순서
+
+requestAnimationFrame 함수 실행 -> 값 계산 후 View.setNativeProps 함수 실행 -> Bridge로 전달 -> UI 업데이트
+
+* Native Driver 동작 순서
+
+메인 쓰레드에서 프레임마다 실행 -> 계산된 값으로 직접 View 업데이트 호출 -> UI 업데이트
+
+```Javascript
+Animated.timing(this._animation, {
+ toValue: 1,
+ duration: 1000,
+ useNativeDriver: true,   // add this
+}).start();
+```
+
 ### 무거운 코드의 올바른 실행 시점
 
 ### FlatList 성능 개선
