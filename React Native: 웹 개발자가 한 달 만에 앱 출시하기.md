@@ -235,6 +235,13 @@ Class Text extends PureComponent {
 
 * hitSlop으로 최소한 44dp의 터치 영역을 보장해주세요.
 
+```javascript
+<TouchableWithourFeedback
+  hitSlop={{top: 7, right: 7, bottom: 7, left: 7}}>
+  <View .../>
+</TouchableWithourFeedback>
+```
+
 ### 놓치기 쉬운 최초 화면 렌더링
 
 * render() 함수가 최초에 한 번 실행된다는 걸 잊기 쉬움
@@ -272,6 +279,30 @@ Animated.timing(this._animation, {
 ```
 
 ### 무거운 코드의 올바른 실행 시점
+
+* 애니메이션과 인터랙션이 끝난 후로 실행 지연
+
+반복되는 애니메이션이 있다면 등록한 코드가 실행되지 않거나 실행 시점의 문제 발생
+
+* 다음 프레임으로 실행 지연
+
+현재 프레임의 다른 실행을 보장해서 앱 반응성 개선
+
+```javascript
+import { InteractionManager } from 'react-native';
+
+componentDidMount() {
+  InteractionManager.runAfterInteractions(() => {
+    this.doExpensiveAction();
+  });
+}
+
+handleOnPress() {
+  requestAnimationFrame(() => {
+    this.doExpensiveAction();
+  });
+}
+```
 
 ### FlatList 성능 개선
 
