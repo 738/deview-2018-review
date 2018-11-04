@@ -306,9 +306,88 @@ handleOnPress() {
 
 ### FlatList 성능 개선
 
+* getItemLayout 속성 사용
+
+높이가 고정된 구성이라면 레이아웃의 크기를 매번 계산하지 않아서 성능 개선
+
+```javascript
+<FlatList
+  getItemLayout={(data, index) => {
+    { length: ITEM_HEIGHT, offset: ITEM_HEIGHT * index, index }
+  )}
+/>
+```
+
 ### 효율적인 레퍼런스 사용
 
+1. String Refs
+
+Deprecated된 방식으로 사용하지 마세요.
+
+```javascript
+// 레퍼런스 할당
+<TextInput ref={'inputField'} />
+// 레퍼런스 사용
+this._refs.inputField.focus();
+```
+
+2. Callback Refs
+
+컴포넌트에 인라인 함수를 사용하는 건 좋지 않아요.
+
+```javascript
+// 레퍼런스 할당
+<TextInput ref={ component => this._inputField = component } />
+// 레퍼런스 사용
+this._inputField.focus();
+```
+
+3. React.createRef()
+
+React 16.3 버전부터 제공하는 효율적인 방식을 사용하세요.
+
+```javascript
+// 레퍼런스 생성
+this._inputFieldRef = React.createRef();
+// 레퍼런스 할당
+<TextInput ref={this._inputFieldRef} />
+// 레퍼런스 사용
+this._inputFieldRef.current.focus();
+```
+
 ### Google Play API Level 26 정책 대응
+
+* 유지보수되지 않는 라이브러리의 빌드 설정
+
+```gradle
+android {
+  compileSdkVersion 23
+  buildToolsVersion "23.0.1"
+  
+  defaultConfig {
+    minSdkVersion 16
+    targetSdkVersion 22
+  }
+}
+```
+
+* 프로젝트 설정을 사용하는 빌드 설정
+
+```gradle
+def safeExtGet(prop, fallback) {
+  rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
+
+android {
+  compileSdkVersion safeExtGet('compileSdkVersion', 27)
+  buildToolsVersion safeExtGet('buildToolsVersion', '27.0.3')
+  
+  defaultConfig {
+    minSdkVersion safeExtGet('minSdkVersion', 16)
+    targetSdkVersion safeExtGet('targetSdkVersion', 26)
+  }
+}
+```
 
 ### 안드로이드 APK 최적화
 
