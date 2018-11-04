@@ -65,7 +65,7 @@ Facebook의 개선 방향
 3. Faster and more lightweight bridge
 
 
-## Cake 프로젝트에 얻은 노하우 & 탑
+## Cake 프로젝트에 얻은 노하우 & 
 
 ### EXPO(CRNA) 사용 자제
 
@@ -470,3 +470,8 @@ Adobe After Effects로 작업한 애니메이션을 JSON 형식으로 export하�
 #### 출처
 * 발표자료: [링크](https://www.slideshare.net/deview/121react-native)
 * 발표자: 스노우 이성민 개발자님
+
+
+#### 도움되는 링크
+* [코드종님의 네비게이션 모듈 관련 글](https://jsdev.kr/t/react-native-1-navigation/2617)
+* [폰트 스케일 관련 글](https://blog.solutotlv.com/size-matters/)
