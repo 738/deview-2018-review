@@ -391,11 +391,81 @@ android {
 
 ### 안드로이드 APK 최적화
 
+1. Split APK
+
+- CPU 별로 불필요한 코드 제거
+- 중복된 JavaScriptCore 라이브러리의 제거로 APK 크기 3~4 MB 감소
+
+```gradle
+// android/app/build.gradle
+def enableSeparateBuildPerCPUArchitecture = true
+```
+
+2. Proguard 적용
+
+```gradle
+// android/app/build.gradle
+def enableProguardInReleaseBuilds = true
+```
+
+3. shrinkResources 옵션 사용 금지
+
+4. console.* 코드 제거
+
+```bash
+$ npm install --save-dev babel-plugin-transform-remove-console
+```
+
+```json
+// .babelrc
+{
+  "env": {
+    "production": {
+      "plugins": ["transform-remove-console"]
+    }
+  }
+}
+```
+
+5. 불필요한 localized resource 제거
+
+```gradle
+// android/app/build.gradle
+android {
+  defaultConfig {
+    resConfigs "en", "ko"
+  }
+}
+```
+
+6. 이미지 최적화
+
+TinyPNG, OptiPNG
+
+
 ### 앱 크기에 대한 걱정은 오해
 
 ### 네비게이션 모듈 선택
 
+- `react-navigation` (JS 구현체)
+- `react-native-navigation` (Native 구현체)
+
+- Native 구현체가 JS 구현체보다 성능이 좋으니 무조건 앞선다는 글에 현혹되지 마세요.
+- 원하는 수준의 커스터마이징과 트러블 대응이 가능한 모듈을 선택하세요.
+
 ### 복잡한 애니메이션은 Lottie
+
+* 이제 디자이너한테 복잡한 애니메이션도 다 된다고 자신 있게 말하세요.
+
+Adobe After Effects로 작업한 애니메이션을 JSON 형식으로 export하면 끝
+
+```javascript
+<LottieView
+  source={require('./animation.json')}
+  autoPlay
+  loop
+/>
+```
 
 #### 출처
 * 발표자료: [링크](https://www.slideshare.net/deview/121react-native)
