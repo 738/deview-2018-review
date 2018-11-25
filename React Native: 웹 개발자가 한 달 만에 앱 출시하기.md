@@ -212,9 +212,9 @@ export default PlatformStyleSheet;
 ### 공용 Text 컴포넌트 사용하기
 
 ```javascript
-Class Text extends PureComponent {
+class Text extends PureComponent {
     static defaultStyle = Platform.select({
-        ios: { fontFmaily: 'AppleSDGothicNeo-Regular' },
+        ios: { fontFamily: 'AppleSDGothicNeo-Regular' },
         android: {
             fontFamily: 'sans-serif',
             includeFontPadding: false
